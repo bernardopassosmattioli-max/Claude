@@ -2,26 +2,40 @@
 %%%% CODE MODIFIED FOR INCREASED SPEED, September 2002, BY OLE SIGMUND %%%
 clear; clc;
 % DADOS DE ENTRADA
-nelx = 70;
-nely = 30;
+estrutura = 1;   % 1 = Estrutura 1, 2 = Estrutura 2, 3 = Exercicio 2
+if estrutura==1, nelx=40; nely=96;
+elseif estrutura==2, nelx=80; nely=40;
+else nelx=50; nely=30;
+end
+h = 10/nelx;     % tamanho do elemento [m]
 volfrac = 0.3;
 penal = 3;
 rmin = 1.5;
-% FINITE ELEMENT MESH AND ANALYSIS
-% Incluir os dados da malha do Trabalho 1.
-% Retornar o vetor U
-
+% REGIAO PASSIVA (recorte vazio do Exercicio 2)
+passive = zeros(nely,nelx);
+if estrutura==3
+    for elx = 1:nelx
+        for ely = 1:nely
+            xc = (elx-0.5)*h; yc = (ely-0.5)*h;
+            if xc>3 && xc<7 && yc<3, passive(ely,elx) = 1; end
+        end
+    end
+end
 % INITIALIZE
 x(1:nely,1:nelx) = volfrac;
+x(passive==1) = 0.001;
 loop = 0;
 change = 1.;
+historico = [];
 % START ITERATION
 while change > 0.01
     loop = loop + 1;
     xold = x;
     % FE-ANALYSIS
-    % Usar a análise do MEF do Trabalho 1 (Cálculo de U=K\F)
-    % Incluir a variável de projeto x na função: [U]=FE(nelx,nely,x,penal);
+    if estrutura==1, U = FE(nelx,nely,x,penal);
+    elseif estrutura==2, U = FEb(nelx,nely,x,penal);
+    else U = FE2(nelx,nely,x,penal);
+    end
     % OBJECTIVE FUNCTION AND SENSITIVITY ANALYSIS
     [KE] = lk;
     c = 0.;
@@ -34,18 +48,27 @@ while change > 0.01
             dc(ely,elx) = -penal*x(ely,elx)^(penal-1)*Ue'*KE*Ue;
         end
     end
+    historico(loop) = c;
     % FILTERING OF SENSITIVITIES
     [dc]   = check(nelx,nely,rmin,x,dc);
     % DESIGN UPDATE BY THE OPTIMALITY CRITERIA METHOD
-    [x]    = OC(nelx,nely,x,volfrac,dc);
+    [x]    = OC(nelx,nely,x,volfrac,dc,passive);
     % PRINT RESULTS
     change = max(max(abs(x-xold)));
     disp([' It.: ' sprintf('%4i',loop) ' Obj.: ' sprintf('%10.4f',c) ...
         ' Vol.: ' sprintf('%6.3f',sum(sum(x))/(nelx*nely)) ...
         ' ch.: ' sprintf('%6.3f',change )])
     % PLOT DENSITIES
-    colormap(gray); imagesc(-x); axis equal; axis tight; axis off;pause(1e-3);
+    colormap(gray); imagesc(-flipud(x)); axis equal; axis tight; axis off;pause(1e-3);
 end
+% CURVA DE CONVERGENCIA
+figure; plot(1:loop,historico,'-o'); grid on;
+xlabel('Iteracao'); ylabel('Funcao objetivo c'); title('Convergencia');
+% TENSAO DE VON MISES
+[TVM] = VonMises(nelx,nely,U,1,0.3,h,h);
+TVM = TVM.*x(:).^penal;
+figure; imagesc(flipud(reshape(TVM,nely,nelx))); axis equal; axis tight; colorbar;
+title('Tensao de von Mises');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
