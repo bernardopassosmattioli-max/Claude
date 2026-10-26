@@ -15,9 +15,11 @@ for elx = 1:nelx
     end
 end
 
-F(2*31,1) = -1;
+Lx = 10; Ly = 5;    % dimensoes da Estrutura 2 [m]
+no = @(xp,yp) (nely+1)*round(xp/Lx*nelx) + round(yp/Ly*nely) + 1;   % no na posicao (xp,yp) [m]
+F(2*no(5,0),1) = -1;      % carga em x = 5 m, y = 0
 F(2*(nelx+1)*(nely+1)-1,1) = 0;
-fixeddofs = [2, 121:122];
+fixeddofs = [2*no(0,0), 2*no(10,0)-1, 2*no(10,0)];   % apoios em (0,0) e (10,0)
 
 alldofs     = [1:2*(nely+1)*(nelx+1)];
 freedofs    = setdiff(alldofs,fixeddofs);

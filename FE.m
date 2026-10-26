@@ -20,7 +20,9 @@ end
 % F(2,1) = -1;
 % fixeddofs   = union([1:2:2*(nely+1)],[2*(nelx+1)*(nely+1)]);
 %CANTILEVER BEAM
-F(2*263,1) = -10;
+Lx = 10; Ly = 24;   % dimensoes da Estrutura 1 [m]
+no = @(xp,yp) (nely+1)*round(xp/Lx*nelx) + round(yp/Ly*nely) + 1;   % no na posicao (xp,yp) [m]
+F(2*no(10,12),1) = -10;   % carga em x = 10 m, y = 12 m
 F(2*(nelx+1)*(nely+1)-1,1) = 0;
 fixeddofs = [1:2*(nely+1)];
 %
