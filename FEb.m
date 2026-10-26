@@ -1,8 +1,8 @@
 %%%%%%%%%% FE-ANALYSIS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [U]=FEb(nelx,nely,x,penal)
+function [U]=FE(nelx,nely,x,penal)
 [KE] = lk;
 
-K = sparse(2*(nelx+1)*(nely+1), 2*(nelx+1)*(nely+1));
+K = zeros(2*(nelx+1)*(nely+1), 2*(nelx+1)*(nely+1));
 F = zeros(2*(nely+1)*(nelx+1),1);
 U = zeros(2*(nely+1)*(nelx+1),1);
 
@@ -15,9 +15,9 @@ for elx = 1:nelx
     end
 end
 
-F(2*((nely+1)*nelx/2 + 1),1) = -1;
+F(2*31,1) = -1;
 F(2*(nelx+1)*(nely+1)-1,1) = 0;
-fixeddofs = [2, 2*(nely+1)*nelx+1, 2*(nely+1)*nelx+2];
+fixeddofs = [2, 121:122];
 
 alldofs     = [1:2*(nely+1)*(nelx+1)];
 freedofs    = setdiff(alldofs,fixeddofs);

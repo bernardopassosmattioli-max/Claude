@@ -2,7 +2,7 @@
 function [U]=FE(nelx,nely,x,penal)
 [KE] = lk;
 % Inicialização
-K = sparse(2*(nelx+1)*(nely+1), 2*(nelx+1)*(nely+1));
+K = zeros(2*(nelx+1)*(nely+1), 2*(nelx+1)*(nely+1));
 F = zeros(2*(nely+1)*(nelx+1),1);
 U = zeros(2*(nely+1)*(nelx+1),1);
 
@@ -20,7 +20,7 @@ end
 % F(2,1) = -1;
 % fixeddofs   = union([1:2:2*(nely+1)],[2*(nelx+1)*(nely+1)]);
 %CANTILEVER BEAM
-F(2*((nely+1)*nelx + nely/2 + 1),1) = -10;
+F(2*263,1) = -10;
 F(2*(nelx+1)*(nely+1)-1,1) = 0;
 fixeddofs = [1:2*(nely+1)];
 %
